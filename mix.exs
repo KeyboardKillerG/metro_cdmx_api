@@ -37,7 +37,9 @@ defmodule MetroCdmxApi.MixProject do
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
-      {:plug_cowboy, "~> 2.5"}
+      {:plug_cowboy, "~> 2.5"},
+      {:sweet_xml, "~> 0.7.2"},
+      {:libgraph, "~> 0.13.3"}
     ]
   end
 

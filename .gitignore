@@ -22,3 +22,5 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 metro_cdmx_api-*.tar
 
+#Ignore Lock
+mix.lock
