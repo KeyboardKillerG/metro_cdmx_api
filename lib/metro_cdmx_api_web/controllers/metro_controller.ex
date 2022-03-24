@@ -4,7 +4,7 @@ defmodule MetroCdmxApiWeb.MetroController do
   def show(conn, params) do
     origin = params["origin"]
     dest = params["dest"]
-    path = MetroCdmxChallenge.get_route(origin, dest)
+    path = MetroCdmxChallenge.get_path(origin, dest)
     render(conn, "show.json", %{origin: origin, dest: dest, itinerary: path})
   end
 end

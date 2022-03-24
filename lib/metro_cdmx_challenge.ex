@@ -83,25 +83,55 @@ defmodule MetroCdmxChallenge do
         end)
     end)
   end
-
-  def find_line() do
-    #TODO
-    :line
-  end
-
+  
   def find_station(requested_station) do
     metro_lines("./data/Metro_CDMX.kml")
-    |> Enum.map(fn line -> 
-        Enum.find(line.stations, &(&1.name == requested_station))
-       end) 
-    |> Enum.find(&(&1 != nil))
+    |> Enum.map(fn line ->
+         Enum.find(line.stations, &(&1.name == requested_station))
+       end)
+    |> Enum.filter(&(&1 != nil))
   end
 
-  def get_route(source, destiny) do
-    metro_graph("./data/Metro_CDMX.kml")
+  def get_path(source, destiny) do
+    path_list = metro_graph("./data/Metro_CDMX.kml")
     |> Graph.dijkstra(source, destiny)
-    |> Enum.map(&find_station/1) 
+    |> trace_route()
+    path_index = calculate_line_frecunecies(path_list) |> get_lowest_segments_route
+    Enum.at(path_list, path_index)
     |> Enum.map(&Map.from_struct/1)
-    #|> Enum.group_by()   
-  end  
+    |> Enum.chunk_by(&(&1.line))
+  end
+
+  def trace_route([h|t]) do
+    find_station(h)
+    |> Enum.map(&([&1]))
+    |> trace_route(t)
+  end
+
+  def trace_route(acc, []) do
+    acc
+  end
+  def trace_route(acc, [h|t]) do
+    a = for i <- acc, j <- find_station(h), do: i ++ [j]
+    trace_route(a, t)
+  end
+
+  def calculate_line_frecunecies(routes) do
+    Enum.map(routes,
+      fn x ->
+        Enum.reduce(x, %{},
+          fn station, acc_map ->
+            Map.put(acc_map, station.line, Map.get(acc_map, station.line, 0) + 1)
+          end)
+      end)
+  end
+
+  def get_lowest_segments_route(line_frecuencies) do
+    segments_count = Enum.map(line_frecuencies, &(length(Map.keys(&1))))
+    lowest_segments = segments_count
+    |> Enum.sort
+    |> hd
+    segments_count
+    |> Enum.find_index(&(&1 == lowest_segments))
+  end 
 end
